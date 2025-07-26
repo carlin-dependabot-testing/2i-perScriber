@@ -1,0 +1,95 @@
+* wscribe
+** Getting started
+~wscribe~ is yet another easy to use front-end for [[https://github.com/openai/whisper][whisper]] specifically for transcription. It aims to be modular so that it can support multiple audio sources, processing backends and inference interfaces. It can run both on CPU and GPU based on the processing backend. Once transcript is generated, editing/correction/visualization of the transcript can be done manually with the [[https://github.com/geekodour/wscribe-editor][wscribe-editor]].
+
+It was created at [[https://www.sochara.org/][sochara]] because we have a large volume of audio recordings that need to be transcribed and eventually archived. Another important need was that we needed to verify and manually edit the generated transcript, I could not find any open-source tool that checked all the boxes. Suggested workflow is generating word-level transcript(only supported in ~json~ export) and then editing the transcript with the [[https://github.com/geekodour/wscribe-editor][wscribe-editor]].
+
+Currently, it supports the following. Check [[#roadmap][roadmap]] for upcoming support.
+- Processing backend: [[https://github.com/guillaumekln/faster-whisper][faster-whisper]]
+- Audio sources: Local files (Audio/Video)
+- Inference interfaces: Python CLI
+- File exports: JSON, SRT, WebVTT
+*** Installation
+These instructions were tested on ~NixOS:Python3.10~ and ~ArchLinux:Python3.10~ but should work for any other OS, if you face any installation issues please feel free to [[https://github.com/geekodour/wscribe/issues][create issues]]. I'll try to put out a docker image sometime.
+**** 1. Set required env var
+- ~WSCRIBE_MODELS_DIR~ : Path to the directory where whisper models should be downloaded to.
+#+begin_src bash
+export WSCRIBE_MODELS_DIR=$XDG_DATA_HOME/whisper-models # example
+#+end_src
+**** 2. Download the models
+***** Recommended
+- Recommended way for downloading the models is to use the [[https://github.com/geekodour/wscribe/blob/main/scripts/fw_dw_hf_wo_lfs.sh][helper script]], it'll download the models to ~WSCRIBE_MODELS_DIR~.
+  #+begin_src shell
+cd /tmp # temporary script, only needed to download the models
+curl https://raw.githubusercontent.com/geekodour/wscribe/main/scripts/fw_dw_hf_wo_lfs.sh
+chmod u+x fw_dw_hf_wo_lfs.sh
+./fw_dw_hf_wo_lfs.sh tiny # other models: tiny, small, medium and large-v2
+  #+end_src
+***** Manual
+You can download the models directly [[https://huggingface.co/guillaumekln][from here]] using ~git lfs~, make sure you download/copy them to ~WSCRIBE_MODELS_DIR~
+**** 3. Install wscribe
+Assuming you already have a working ~python>=3.10~ setup
+#+begin_src shell
+pip install wscribe
+#+end_src
+*** Usage
+#+begin_src shell
+# wscribe transcribe [OPTIONS] SOURCE DESTINATION
+
+# cpu
+wscribe transcribe audio.mp3 transcription.json
+# use gpu
+wscribe transcribe video.mp4 transcription.json --gpu
+# use gpu, srt format
+wscribe transcribe video.mp4 transcription.srt -g -f srt
+# use gpu, srt format, tiny model
+wscribe transcribe video.mp4 transcription.vtt -g -f vtt -m tiny
+wscribe transcribe --help # all help info
+#+end_src
+** Numbers
+- These numbers are from machine under normal web-browsing workload running on a single RTX3050
+- Audio conversion takes around 1s
+- Also check [[https://github.com/ggerganov/whisper.cpp/issues/1127][this explanation about the speed difference]].
+| device | quant   | model    | original playback | transcription | playback/transcription |
+|--------+---------+----------+-------------------+---------------+------------------------|
+| cuda   | float16 | tiny     | 6.3m              | 0.1m          |                    68x |
+| cuda   | float16 | small    | 6.3m              | 0.2m          |                    29x |
+| cuda   | float16 | medium   | 6.3m              | 0.4m          |                    14x |
+| cuda   | float16 | large-v2 | 6.3m              | 0.8m          |                     7x |
+| cpu    | int8    | tiny     | 6.3m              | 0.2m          |                    25x |
+| cpu    | int8    | small    | 6.3m              | 1.3m          |                     4x |
+| cpu    | int8    | medium   | 6.3m              | 3.6m          |                  ~1.7x |
+| cpu    | int8    | large-v2 | 6.3m              | 3.6m          |                  ~0.9x |
+
+** Roadmap
+*** Processing Backends
+- [X] [[https://github.com/guillaumekln/faster-whisper][faster-whisper]]
+- [ ] [[https://github.com/ggerganov/whisper.cpp][whisper.cpp]]
+- [ ] [[https://github.com/m-bain/whisperX][WhisperX]], diarization is something to look forward to
+*** Transcription Features
+- [ ] Add support for [[https://github.com/guillaumekln/faster-whisper/issues/303][diarization]]
+- [ ] Add translation
+- [ ] Add VAD/other de-noising stuff etc.
+- [ ] Add local llm integration with [[https://github.com/ggerganov/llama.cpp/pull/1773][llama.cpp]] or something similar for summary and [[https://news.ycombinator.com/item?id=36900294][othe possible things]]. It can be also used to generate more accurate transcript. Whisper mostly generates sort of a subtitle, for [[https://www.reddit.com/r/MLQuestions/comments/ks5ez5/how_are_automatic_video_chapters_for_youtube/][converting]] subtitle [[https://www.reddit.com/r/accessibility/comments/xnfibv/most_accurate_way_to_turn_a_srt_file_into_a/][into transcription]] we need to group the subtitle. This can be done in various ways. Eg. By speaker if diarization is supported, by time chunks etc. By using LLMs or maybe other NLP techniques we'll also be able to do this with things like break in dialogue etc. Have to explore.
+*** Inference interfaces
+- [-] Python CLI
+  - [X] Basic CLI
+  - [ ] Improve summary statistics
+- [ ] REST endpoint
+  - [ ] Basic server to run wscribe via an API.
+  - [ ] Possibly add glue code to expose it via CFtunnels or something similar
+- [ ] GUI
+*** Audio sources
+- [X] Local files
+- [ ] Youtube
+- [ ] Google drive
+*** Distribution
+- [X] Python packaging
+- [ ] Docker/Podman
+- [ ] Package for Nix
+- [ ] Package for Arch(AUR)
+** Contributing
+All contribution happens through PRs, any contributions is greatly appreciated, bugfixes are welcome, features are welcome, tests are welcome, suggestions & criticism are welcome.
+*** Testing
+- ~make test~
+- See other helper commands in ~Makefile~

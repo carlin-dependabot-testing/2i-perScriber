@@ -1,0 +1,11 @@
+2025-07-26T12:04:26.697Z: Request method: initialize
+2025-07-26T12:04:26.698Z: Request args: {}
+2025-07-26T12:04:26.698Z: Using JWT token authentication
+2025-07-26T12:04:26.698Z: Token length: 241
+2025-07-26T12:04:26.698Z: Environment: development
+2025-07-26T12:04:26.698Z: API URL: https://wp.robinsai.site
+2025-07-26T12:04:26.698Z: Requesting URL: https://wp.robinsai.site/?rest_route=/wp/v2/wpmcp
+2025-07-26T12:04:26.698Z: Sending request to WordPress API...
+2025-07-26T12:04:26.948Z: Response status: 403
+2025-07-26T12:04:26.949Z: Error response: {"code":"invalid_token","message":"Token validation failed: Expired token","data":{"status":403}}
+2025-07-26T12:04:26.949Z: Error in wpRequest: WordPress API error (403): {"code":"invalid_token","message":"Token validation failed: Expired token","data":{"status":403}}

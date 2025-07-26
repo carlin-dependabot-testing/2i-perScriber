@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/Inter-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "SourceCodePro";
+  src: url("/fonts/SourceCodePro-Regular.ttf");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.playing {
+  will-change: filter;
+  transition: filter 300ms;
+  filter: drop-shadow(0 0 0.5em #a3e635);
+}
+
+.wordhighlight {
+  background-color: #fde047;
+  color: #171717;
+}
