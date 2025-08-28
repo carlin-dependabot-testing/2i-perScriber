@@ -19,7 +19,7 @@
     "autoprefixer": "^10.4.14",
     "clsx": "^2.0.0",
     "happy-dom": "^10.7.0",
-    "nanoid": "^4.0.2",
+    "nanoid": "^5.1.5",
     "postcss": "^8.4.24",
     "prettier": "^3.0.0",
     "prettier-plugin-svelte": "^3.0.3",
